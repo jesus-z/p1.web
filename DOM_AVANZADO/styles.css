@@ -1,0 +1,157 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Dosis', sans-serif;
+    font-size: 16px;
+  }
+  
+  main {
+    background-image: linear-gradient(
+      109.6deg,
+      rgb(162, 34, 154) 11.2%,
+      rgb(0, 255, 255) 100.2%
+    );
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+  }
+  
+  .formContainer {
+    width: 80vw;
+    border-radius: 25px;
+    background-color: #000000;
+    padding: 25px;
+    margin-bottom: 20px;
+  }
+  
+  .title {
+    font-family: 'Dosis', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    margin-bottom: 15px;
+  }
+  
+  .inputForm {
+    border: none;
+    padding: 10px;
+    border: 1px solid #c01717;
+    outline: none;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .inputForm::placeholder {
+    padding: 0px;
+  }
+  
+  .btnCreate {
+    padding: 10px 15px;
+    background-image: linear-gradient(
+      109.6deg,
+      rgb(169, 219, 62) 11.2%,
+      rgb(52, 236, 230) 100.2%
+    );
+    border: none;
+    color: #020000;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bolder;
+    font-size: 20px;
+  }
+  
+  .contentContainer {
+    width: 80vw;
+    display: flex;
+    gap: 20px; /* Espacio entre la tabla y las cards */
+  }
+  
+  .tableContainer {
+    flex: 2; /* La tabla ocupa más espacio */
+    border-radius: 25px;
+    background-color: #1b0b59;
+    padding: 25px;
+    color: #ff0000;
+    font-weight: bolder;
+  }
+  
+  .tableContainer h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ff0000;
+  }
+  
+  table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  .cardsContainer {
+    flex: 1; /* Las cards ocupan menos espacio */
+    height: 500px; /* Altura fija */
+    border-radius: 25px;
+    background-color: #1b0b59;
+    padding: 25px;
+    overflow-y: auto; /* Scroll vertical */
+    color: red;
+  }
+  
+  .cardsContainer h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  #taskCards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .taskCard {
+    padding: 15px;
+    box-shadow: 2px 4px 4px 4px rgba(28, 25, 25, 0.16);
+    border-radius: 8px;
+    background-color: #e4e8eb;
+  }
+  
+  .taskCard p {
+    margin: 5px 0;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .actions button.view {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .actions button.delete {
+    background-color: #dc3545;
+    color: #fff;
+  }
