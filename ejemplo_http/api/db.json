@@ -1,16 +1,17 @@
 {
   "posts": [
     {
-      "id": "2",
-      "titulo": "Nuevo Post Creado",
-      "descripcion": "Econtenido ",
-      "fecha": "2025-03-27"
+      "id": "d5e3",
+      "titulo": "Nuevo Post",
+      "descripcion": "nueva descripcion",
+      "fecha": "2025-03-31T11:56:36.221Z"
     },
     {
-      "id": "1",
-      "titulo": "Nuevo Post Creado",
-      "descripcion": "CONTENIDO",
-      "fecha": "2025-03-27"
+      "id": "ff7c",
+      "titulo": "Nuevo Post",
+      "descripcion": "nueva descripcion",
+      "fecha": "2025-03-31T11:56:38.678Z"
     }
+
   ]
 }

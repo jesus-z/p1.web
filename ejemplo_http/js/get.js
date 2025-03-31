@@ -11,3 +11,5 @@ const getData =()=>{
         .then(data => showResult(data))
         .catch(error => showResult(error.message,true));
 }
+//Set-ExecutionPolicy Unrestricted poner este codigo en powershell para que den los scripts
+//json-server --watch ejemplo_http/api/db.json --port 3000 luego estojson-server --watch ejemplo_http/api/db.json --port 3000
