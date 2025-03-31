@@ -32,32 +32,15 @@
         </section>
         <section class="elemento">
             <h2 class="elemento__titulo">Figuras coleccionables</h2>
-            <div class="elemento__figura">
-                <div>
-                    <img class="elemento__figura--imagen" src="assets/img/prod1.png" alt="Jake el Perro">
-                    <button class="agregar-carrito" data-nombre="Jake el Perro" data-precio="20">Agregar al carrito</button>
-                </div>
-                <div>
-                    <img class="elemento__figura--imagen1" src="assets/img/prod2.png" alt="Dexter">
-                    <button class="agregar-carrito" data-nombre="Dexter" data-precio="25">Agregar al carrito</button>
-                </div>
-                <div>
-                    <img class="elemento__figura--imagen2" src="assets/img/prod3.png" alt="Hiposs">
-                    <button class="agregar-carrito" data-nombre="Hiposs" data-precio="22">Agregar al carrito</button>
-                </div>
-            </div>
+            <a href="#">
+                <figure class="elemento__figura">
+                    <img class="elemento__figura--imagen" src="assets/img/prod1.png" alt="img">
+                    <img class="elemento__figura--imagen1" src="assets/img/prod2.png" alt="img">
+                    <img class="elemento__figura--imagen2" src="assets/img/prod3.png" alt="img">
+                </figure>
+            </a>
+            <a class="elemento__boton" href="#">texto de boton</a>
         </section>
-        <section class="carrito">
-            <h2>Carrito de Compras</h2>
-            <ul id="lista-carrito"></ul>
-            <p>Total: $<span id="total-carrito">0</span></p>
-            <button id="btn-comprar">Finalizar compra</button>
-            <div id="mensaje-compra" style="display: none;" class="alerta-exito">
-                <strong>¡Compra exitosa!</strong> Gracias por tu compra 🛒
-            </div>
-
-        </section>
-        
         <section class="mensaje">
             <ul class="mensaje__lista">
                 <li class="mensaje__item mensaje__logo">
@@ -150,53 +133,6 @@
         </nav>
 
     </footer>
-    <script>
-        const botones = document.querySelectorAll(".agregar-carrito");
-        const listaCarrito = document.getElementById("lista-carrito");
-        const totalCarrito = document.getElementById("total-carrito");
-        let total = 0;
-    
-        botones.forEach(boton => {
-            boton.addEventListener("click", () => {
-                const nombre = boton.getAttribute("data-nombre");
-                const precio = parseFloat(boton.getAttribute("data-precio"));
-    
-                const li = document.createElement("li");
-                li.textContent = `${nombre} - $${precio}`;
-                
-                const btnEliminar = document.createElement("button");
-                btnEliminar.textContent = "Eliminar";
-                btnEliminar.addEventListener("click", () => {
-                    listaCarrito.removeChild(li);
-                    total -= precio;
-                    totalCarrito.textContent = total.toFixed(2);
-                });
-    
-                li.appendChild(btnEliminar);
-                listaCarrito.appendChild(li);
-    
-                total += precio;
-                totalCarrito.textContent = total.toFixed(2);
-            });
-        });
-const btnComprar = document.getElementById("btn-comprar");
-const mensajeCompra = document.getElementById("mensaje-compra");
-
-btnComprar.addEventListener("click", () => {
-    if (listaCarrito.children.length === 0) {
-        alert("El carrito está vacío");
-        return;
-    }
-
-    mensajeCompra.style.display = "block";
-    listaCarrito.innerHTML = "";
-    total = 0;
-    totalCarrito.textContent = total.toFixed(2);
-    setTimeout(() => {
-        mensajeCompra.style.display = "none";
-    }, 3000);
-});
-    </script>
     
 </body>
 </html>
