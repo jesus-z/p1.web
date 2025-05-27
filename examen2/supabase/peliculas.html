@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Películas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <header>
+    <h1>🎬 Administración de Películas</h1>
+    <nav>
+      <a href="cine.html">Inicio</a>
+      <a href="listadeboletos.html">Boletos</a>
+      <a href="horarios.html">Horarios</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="crud-header">
+      <h2>Películas Registradas</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Título</th>
+          <th>Género</th>
+          <th>Duración</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-peliculas"></tbody>
+    </table>
+
+    <form id="pelicula-form">
+      <h3 id="form-title">Agregar Nueva Película</h3>
+      <input type="hidden" id="pelicula-id">
+      <input type="text" id="titulo" placeholder="Título" required>
+      <input type="text" id="genero" placeholder="Género" required>
+      <input type="number" id="duracion" placeholder="Duración (minutos)" required>
+      <input type="url" id="imagen" placeholder="URL de la imagen" required>
+      <button type="submit">💾 Guardar Película</button>
+      <button type="button" id="cancel-btn" onclick="cancelarEdicion()" style="background-color: #6c757d; display: none;">❌ Cancelar</button>
+    </form>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient('https://yftyaleorctkoiomoouf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmdHlhbGVvcmN0a29pb21vb3VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTk3NzYsImV4cCI6MjA2MzQ5NTc3Nn0.XXiT9Z7wM5DAaQ6kW0NCtDIg0pu_aZSHJAuhAt-5gGE');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarPeliculas();
+      document.getElementById('pelicula-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const id = document.getElementById('pelicula-id').value;
+        if (id) {
+          actualizarPelicula(id);
+        } else {
+          agregarPelicula();
+        }
+      });
+    });
+
+    async function cargarPeliculas() {
+      const { data, error } = await supabase.from('peliculas').select('*');
+      if (error) return console.error('Error al cargar:', error);
+
+      const tbody = document.getElementById('tabla-peliculas');
+      tbody.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No hay películas registradas</td></tr>';
+        return;
+      }
+
+      data.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img class="thumbnail" src="${p.imagen}" alt="${p.titulo}" onerror="this.src='https://via.placeholder.com/60x90?text=No+Img';" /></td>
+          <td>${p.titulo}</td>
+          <td>${p.genero}</td>
+          <td>${p.duracion} min</td>
+          <td>
+            <button class="btn-action" onclick="editarPelicula('${p.id}')">✏️ Editar</button>
+            <button class="btn-action btn-delete" onclick="eliminarPelicula('${p.id}')">🗑️ Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function obtenerDatosFormulario() {
+      return {
+        titulo: document.getElementById('titulo').value.trim(),
+        genero: document.getElementById('genero').value.trim(),
+        duracion: parseInt(document.getElementById('duracion').value),
+        imagen: document.getElementById('imagen').value.trim()
+      };
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('pelicula-form').reset();
+      document.getElementById('pelicula-id').value = '';
+      document.getElementById('form-title').textContent = 'Agregar Nueva Película';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    async function agregarPelicula() {
+      const nueva = obtenerDatosFormulario();
+      nueva.id = Date.now().toString();
+      const { error } = await supabase.from('peliculas').insert([nueva]);
+      if (error) return console.error('Error agregando:', error);
+      limpiarFormulario();
+      cargarPeliculas();
+    }
+
+    async function editarPelicula(id) {
+      const { data, error } = await supabase.from('peliculas').select('*').eq('id', id).single();
+      if (error) return console.error('Error obteniendo:', error);
+      document.getElementById('pelicula-id').value = data.id;
+      document.getElementById('titulo').value = data.titulo;
+      document.getElementById('genero').value = data.genero;
+      document.getElementById('duracion').value = data.duracion;
+      document.getElementById('imagen').value = data.imagen;
+      document.getElementById('form-title').textContent = `Editar Película: ${data.titulo}`;
+      document.getElementById('cancel-btn').style.display = 'inline-block';
+    }
+
+    async function actualizarPelicula(id) {
+      const actualizada = obtenerDatosFormulario();
+      const { error } = await supabase.from('peliculas').update(actualizada).eq('id', id);
+      if (error) return console.error('Error actualizando:', error);
+      limpiarFormulario();
+      cargarPeliculas();
+    }
+
+    async function eliminarPelicula(id) {
+      if (!confirm('¿Estás seguro de eliminar esta película?')) return;
+      const { error } = await supabase.from('peliculas').delete().eq('id', id);
+      if (error) return console.error('Error eliminando:', error);
+      cargarPeliculas();
+    }
+
+    function cancelarEdicion() {
+      limpiarFormulario();
+    }
+  </script>
+</body>
+</html>

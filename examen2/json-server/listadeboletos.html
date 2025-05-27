@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Boletos Vendidos</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .crud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .btn-crud {
+      background-color: #1e60d4;
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .btn-crud:hover {
+      background-color: #174bb3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    thead {
+      background-color: #f5f6f8;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      color: #333;
+      font-weight: bold;
+    }
+
+    tbody tr:hover {
+      background-color: #47e907;
+    }
+
+    form {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input, button[type="submit"] {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      background-color: #1e60d4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #174bb3;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎟️ Administración de Boletos</h1>
+    <nav>
+      <a href="cine.html">Inicio</a>
+      <a href="peliculas.html">Películas</a>
+      <a href="lista_horarios.html">Horarios</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="crud-header">
+      <h2>Boletos Vendidos</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID Cliente</th>
+          <th>ID Horario</th>
+          <th>Cantidad</th>
+          <th>Precio Total</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-boletos">
+        <!-- Rellenado por JavaScript -->
+      </tbody>
+    </table>
+
+    <h3>Agregar / Editar Boleto</h3>
+    <form id="boleto-form">
+      <input type="hidden" id="boleto-id" />
+      <input type="text" id="idCliente" placeholder="ID Cliente" required />
+      <input type="text" id="idHorario" placeholder="ID Horario" required />
+      <input type="number" id="cantidad" placeholder="Cantidad" required />
+      <input type="number" id="precioTotal" placeholder="Precio Total" required />
+      <button type="submit">💾 Guardar Boleto</button>
+    </form>
+  </div>
+
+  <script>
+    const apiURL = 'http://localhost:3004/boletos';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarBoletos();
+
+      document.getElementById('boleto-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const id = document.getElementById('boleto-id').value;
+        if (id) {
+          actualizarBoleto(id);
+        } else {
+          agregarBoleto();
+        }
+      });
+    });
+
+    function cargarBoletos() {
+      fetch(apiURL)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('tabla-boletos');
+          tbody.innerHTML = '';
+
+          data.forEach(boleto => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+              <td>${boleto.idCliente}</td>
+              <td>${boleto.idHorario}</td>
+              <td>${boleto.cantidad}</td>
+              <td>$${boleto.precioTotal.toFixed(2)}</td>
+              <td>
+                <button onclick="editarBoleto(${boleto.id})">✏️ Editar</button>
+                <button onclick="eliminarBoleto(${boleto.id})">🗑️ Eliminar</button>
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => console.error('Error al cargar boletos:', err));
+    }
+
+    function agregarBoleto() {
+      const nuevo = obtenerDatosFormulario();
+
+      fetch(apiURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevo)
+      })
+        .then(res => res.json())
+        .then(() => {
+          limpiarFormulario();
+          cargarBoletos();
+          alert('Boleto agregado');
+        });
+    }
+
+    function eliminarBoleto(id) {
+      if (!confirm('¿Estás seguro de eliminar este boleto?')) return;
+
+      fetch(`${apiURL}/${id}`, { method: 'DELETE' })
+        .then(() => {
+          cargarBoletos();
+          alert('Boleto eliminado');
+        });
+    }
+
+    function editarBoleto(id) {
+      fetch(`${apiURL}/${id}`)
+        .then(res => res.json())
+        .then(boleto => {
+          document.getElementById('boleto-id').value = boleto.id;
+          document.getElementById('idCliente').value = boleto.idCliente;
+          document.getElementById('idHorario').value = boleto.idHorario;
+          document.getElementById('cantidad').value = boleto.cantidad;
+          document.getElementById('precioTotal').value = boleto.precioTotal;
+        });
+    }
+
+    function actualizarBoleto(id) {
+      const actualizado = obtenerDatosFormulario();
+
+      fetch(`${apiURL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(actualizado)
+      })
+        .then(() => {
+          limpiarFormulario();
+          cargarBoletos();
+          alert('Boleto actualizado');
+        });
+    }
+
+    function obtenerDatosFormulario() {
+      return {
+        idCliente: document.getElementById('idCliente').value,
+        idHorario: document.getElementById('idHorario').value,
+        cantidad: parseInt(document.getElementById('cantidad').value),
+        precioTotal: parseFloat(document.getElementById('precioTotal').value)
+      };
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('boleto-form').reset();
+      document.getElementById('boleto-id').value = '';
+    }
+  </script>
+</body>
+</html>

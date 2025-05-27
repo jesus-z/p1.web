@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Películas</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #1e60d4;
+      margin-bottom: 20px;
+    }
+
+    nav {
+      margin-bottom: 20px;
+    }
+
+    nav a {
+      color: #1e60d4;
+      text-decoration: none;
+      margin: 0 15px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+
+    nav a:hover {
+      background-color: #1e60d4;
+      color: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .crud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .btn-crud {
+      background-color: #1e60d4;
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .btn-crud:hover {
+      background-color: #174bb3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #111;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      margin-bottom: 30px;
+    }
+
+    thead {
+      background-color: #1e60d4;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    td {
+      color: #fff;
+    }
+
+    tbody tr:hover {
+      background-color: #222;
+    }
+
+    .btn-action {
+      background-color: #1e60d4;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin: 2px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+    }
+
+    .btn-action:hover {
+      background-color: #174bb3;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    form {
+      background-color: #111;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    form h3 {
+      margin-top: 0;
+      color: #1e60d4;
+    }
+
+    input {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: #222;
+      color: #fff;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #1e60d4;
+    }
+
+    button[type="submit"] {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    img.thumbnail {
+      width: 60px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .status-message {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .error {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎬 Administración de Películas</h1>
+    <nav>
+      <a href="cine.html">Inicio</a>
+      <a href="listadeboletos.html">Boletos</a>
+      <a href="horarios.html">Horarios</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="crud-header">
+      <h2>Películas Registradas</h2>
+    </div>
+
+    <div id="status-message"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Título</th>
+          <th>Género</th>
+          <th>Duración</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-peliculas">
+        <tr><td colspan="5" class="loading">Cargando películas...</td></tr>
+      </tbody>
+    </table>
+
+    <form id="pelicula-form">
+      <h3 id="form-title">Agregar Nueva Película</h3>
+      <input type="hidden" id="pelicula-id" />
+      <input type="text" id="titulo" placeholder="Título" required />
+      <input type="text" id="genero" placeholder="Género" required />
+      <input type="number" id="duracion" placeholder="Duración (minutos)" min="1" required />
+      <input type="url" id="imagen" placeholder="URL de la imagen" required />
+      <button type="submit" id="submit-btn">💾 Guardar Película</button>
+      <button type="button" id="cancel-btn" onclick="cancelarEdicion()" style="background-color: #6c757d; display: none;">❌ Cancelar</button>
+    </form>
+  </div>
+
+  <script>
+    const apiURL = 'http://localhost:/cineapp/api/peliculas.php';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarPeliculas();
+
+      document.getElementById('pelicula-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const id = document.getElementById('pelicula-id').value;
+        if (id) {
+          actualizarPelicula(id);
+        } else {
+          agregarPelicula();
+        }
+      });
+    });
+
+    function mostrarMensaje(mensaje, tipo = 'success') {
+      const statusDiv = document.getElementById('status-message');
+      statusDiv.innerHTML = `<div class="status-message ${tipo}">${mensaje}</div>`;
+      setTimeout(() => {
+        statusDiv.innerHTML = '';
+      }, 4000);
+    }
+
+    function cargarPeliculas() {
+      fetch(apiURL)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          const tbody = document.getElementById('tabla-peliculas');
+          tbody.innerHTML = '';
+
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No hay películas registradas</td></tr>';
+            return;
+          }
+
+          data.forEach(pelicula => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+              <td><img class="thumbnail" src="${pelicula.imagen}" alt="${pelicula.titulo}" onerror="this.src='https://via.placeholder.com/60x90?text=No+Img';" /></td>
+              <td>${pelicula.titulo}</td>
+              <td>${pelicula.genero}</td>
+              <td>${pelicula.duracion} min</td>
+              <td>
+                <button class="btn-action" onclick="editarPelicula(${pelicula.id})">✏️ Editar</button>
+                <button class="btn-action btn-delete" onclick="eliminarPelicula(${pelicula.id})">🗑️ Eliminar</button>
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error('Error al cargar películas:', err);
+          const tbody = document.getElementById('tabla-peliculas');
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #dc3545;">Error al cargar películas. Verifica que json-server esté ejecutándose en el puerto 3000</td></tr>';
+          mostrarMensaje('Error al cargar las películas. Verifica la conexión con el servidor.', 'error');
+        });
+    }
+
+    function obtenerDatosFormulario() {
+      return {
+        titulo: document.getElementById('titulo').value.trim(),
+        genero: document.getElementById('genero').value.trim(),
+        duracion: parseInt(document.getElementById('duracion').value),
+        imagen: document.getElementById('imagen').value.trim()
+      };
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('pelicula-form').reset();
+      document.getElementById('pelicula-id').value = '';
+      document.getElementById('form-title').textContent = 'Agregar Nueva Película';
+      document.getElementById('submit-btn').textContent = '💾 Guardar Película';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    function validarDatos(datos) {
+      if (!datos.titulo || !datos.genero || !datos.duracion || !datos.imagen) {
+        mostrarMensaje('Por favor, completa todos los campos obligatorios', 'error');
+        return false;
+      }
+
+      if (datos.duracion <= 0) {
+        mostrarMensaje('La duración debe ser mayor a 0 minutos', 'error');
+        return false;
+      }
+
+      try {
+        new URL(datos.imagen);
+      } catch (e) {
+        mostrarMensaje('Por favor, ingresa una URL válida para la imagen', 'error');
+        return false;
+      }
+
+      return true;
+    }
+
+   async function agregarPelicula() {
+  const nueva = obtenerDatosFormulario();
+
+  if (!validarDatos(nueva)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(apiURL);
+    const peliculas = await response.json();
+
+    const idsNumericos = peliculas
+      .map(p => parseInt(p.id))
+      .filter(id => !isNaN(id));
+
+    const proximoId = idsNumericos.length > 0 ? Math.max(...idsNumericos) + 1 : 1;
+
+    // 🔧 Convertir a string (entre comillas en el JSON)
+    nueva.id = proximoId.toString();
+
+    const res = await fetch(apiURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(nueva)
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error HTTP: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log('Película agregada:', data);
+    limpiarFormulario();
+    cargarPeliculas();
+    mostrarMensaje('✅ Película agregada exitosamente');
+  } catch (err) {
+    console.error('Error al agregar película:', err);
+    mostrarMensaje('❌ Error al agregar la película. Verifica la conexión con el servidor.', 'error');
+  }
+}
+
+
+    function eliminarPelicula(id) {
+      if (!confirm('¿Estás seguro de que deseas eliminar esta película?\n\nEsta acción no se puede deshacer.')) {
+        return;
+      }
+
+      // Asegurar que el ID sea tratado correctamente
+      const peliculaId = encodeURIComponent(id);
+
+      fetch(`${apiURL}/${peliculaId}`, { 
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          console.log('Película eliminada:', id);
+          cargarPeliculas();
+          mostrarMensaje('✅ Película eliminada exitosamente');
+          
+          // Si estamos editando la película que se eliminó, limpiar el formulario
+          if (document.getElementById('pelicula-id').value == id) {
+            limpiarFormulario();
+          }
+        })
+        .catch(err => {
+          console.error('Error al eliminar película:', err);
+          mostrarMensaje('❌ Error al eliminar la película. Verifica la conexión con el servidor.', 'error');
+        });
+    }
+
+    function editarPelicula(id) {
+      // Asegurar que el ID sea tratado correctamente
+      const peliculaId = encodeURIComponent(id);
+      
+      fetch(`${apiURL}/${peliculaId}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(pelicula => {
+          if (!pelicula) {
+            mostrarMensaje('❌ Película no encontrada', 'error');
+            return;
+          }
+
+          console.log('Editando película:', pelicula);
+
+          document.getElementById('pelicula-id').value = pelicula.id;
+          document.getElementById('titulo').value = pelicula.titulo;
+          document.getElementById('genero').value = pelicula.genero;
+          document.getElementById('duracion').value = pelicula.duracion;
+          document.getElementById('imagen').value = pelicula.imagen;
+          
+          document.getElementById('form-title').textContent = `Editar Película: ${pelicula.titulo}`;
+          document.getElementById('submit-btn').textContent = '✏️ Actualizar Película';
+          document.getElementById('cancel-btn').style.display = 'inline-block';
+          
+          mostrarMensaje('✏️ Modo edición activado', 'success');
+          
+          // Scroll al formulario
+          document.getElementById('pelicula-form').scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        })
+        .catch(err => {
+          console.error('Error al obtener película:', err);
+          mostrarMensaje('❌ Error al cargar los datos de la película', 'error');
+        });
+    }
+
+    function actualizarPelicula(id) {
+      const actualizada = obtenerDatosFormulario();
+
+      if (!validarDatos(actualizada)) {
+        return;
+      }
+
+      // Preservar el ID original
+      actualizada.id = id;
+
+      // Asegurar que el ID sea tratado correctamente en la URL
+      const peliculaId = encodeURIComponent(id);
+
+      fetch(`${apiURL}/${peliculaId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(actualizada)
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log('Película actualizada:', data);
+          limpiarFormulario();
+          cargarPeliculas();
+          mostrarMensaje('✅ Película actualizada exitosamente');
+        })
+        .catch(err => {
+          console.error('Error al actualizar película:', err);
+          mostrarMensaje('❌ Error al actualizar la película. Verifica la conexión con el servidor.', 'error');
+        });
+    }
+
+    function cancelarEdicion() {
+      limpiarFormulario();
+      mostrarMensaje('❌ Edición cancelada', 'error');
+    }
+
+    // Verificar conexión al cargar la página
+    window.addEventListener('load', () => {
+      fetch(apiURL)
+        .then(res => {
+          if (res.ok) {
+            console.log('✅ Conexión con json-server establecida');
+          }
+        })
+        .catch(err => {
+          console.error('❌ No se pudo conectar con json-server:', err);
+          mostrarMensaje('⚠️ No se pudo conectar con el servidor. Asegúrate de que json-server esté ejecutándose.', 'error');
+        });
+    });
+  </script>
+</body>
+</html>

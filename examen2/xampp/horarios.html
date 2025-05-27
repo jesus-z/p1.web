@@ -1,0 +1,176 @@
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Horarios</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+
+    <header>
+      <h1>🕒 Administración de Horarios</h1>
+      <nav>
+        <a href="cine.html">Inicio</a>
+        <a href="peliculas.html">Películas</a>
+        <a href="listadeboletos.html">Boletos</a>
+      </nav>
+    </header>
+
+    <div class="container">
+      <div class="crud-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 class="section-title">Gestión de Horarios</h2>
+        <button onclick="limpiarFormulario()" style="background-color: #a64ef0; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">limpiar horario</button>
+      </div>
+
+      <table style="width: 100%; background-color: #111; color: white; border-collapse: collapse; border-radius: 10px; overflow: hidden;">
+        <thead style="background-color: #ff00ff; color: #000;">
+          <tr>
+            <th style="padding: 15px;">Fecha</th>
+            <th style="padding: 15px;">Hora</th>
+            <th style="padding: 15px;">Sala</th>
+            <th style="padding: 15px;">Película</th>
+            <th style="padding: 15px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-horarios">
+          <!-- Llenado dinámico con JS -->
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 40px; text-shadow: 0 0 8px #ff00ff;">Agregar / Editar Horario</h3>
+      <form id="form-horario" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+        <input type="hidden" id="horario-id" />
+        <input type="date" id="fecha" placeholder="Fecha" required />
+        <input type="time" id="hora" placeholder="Hora" required />
+        <input type="text" id="sala" placeholder="Sala" required />
+        <input type="text" id="pelicula" placeholder="Película (opcional)" />
+        <button type="submit" style="background-color: #1e60d4; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold;">💾 Guardar Horario</button>
+      </form>
+    </div>
+
+    <script>
+      const apiURL = 'http://localhost/cineapp/api/horarios.php';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        cargarHorarios();
+
+        document.getElementById('form-horario').addEventListener('submit', e => {
+          e.preventDefault();
+          const id = document.getElementById('horario-id').value;
+          if (id) {
+            actualizarHorario(id);
+          } else {
+            agregarHorario();
+          }
+        });
+      });
+
+      function cargarHorarios() {
+        fetch(apiURL)
+          .then(res => res.json())
+          .then(data => {
+            const tbody = document.getElementById('tabla-horarios');
+            tbody.innerHTML = '';
+            data.forEach(horario => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td style="padding: 12px;">${horario.fecha}</td>
+                <td style="padding: 12px;">${formatearHora(horario.hora)}</td>
+                <td style="padding: 12px;">${horario.sala}</td>
+                <td style="padding: 12px;">${horario.pelicula || 'Sin película'}</td>
+                <td style="padding: 12px;">
+                  <button onclick="editarHorario(${horario.id})" style="background-color: orange; color: black; padding: 6px 12px; border: none; border-radius: 5px;">✏️ Editar</button>
+                  <button onclick="eliminarHorario(${horario.id})" style="background-color: #999; color: black; padding: 6px 12px; border: none; border-radius: 5px;">🗑️ Eliminar</button>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          });
+      }
+
+      function formatearHora(hora) {
+        const [h, m] = hora.split(':');
+        const hInt = parseInt(h);
+        const ampm = hInt >= 12 ? 'PM' : 'AM';
+        const h12 = hInt % 12 || 12;
+        return `${h12}:${m} ${ampm}`;
+      }
+
+      function obtenerDatosFormulario() {
+        return {
+          fecha: document.getElementById('fecha').value,
+          hora: document.getElementById('hora').value,
+          sala: document.getElementById('sala').value,
+          pelicula: document.getElementById('pelicula').value
+        };
+      }
+
+      function limpiarFormulario() {
+        document.getElementById('form-horario').reset();
+        document.getElementById('horario-id').value = '';
+      }
+
+    function agregarHorario() {
+    const nuevo = obtenerDatosFormulario();
+
+    // Obtener el siguiente ID como string numérico
+    fetch(apiURL)
+      .then(res => res.json())
+      .then(horarios => {
+        const ids = horarios
+          .map(h => parseInt(h.id))
+          .filter(id => !isNaN(id));
+        const nuevoId = (ids.length > 0 ? Math.max(...ids) + 1 : 1).toString(); // <-- ID en comillas
+
+        const nuevoConId = { id: nuevoId, ...nuevo };
+
+        return fetch(apiURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoConId)
+        });
+      })
+      .then(() => {
+        limpiarFormulario();
+        cargarHorarios();
+        alert('Horario agregado');
+      });
+  }
+
+
+      function editarHorario(id) {
+        fetch(`${apiURL}/${id}`)
+          .then(res => res.json())
+          .then(horario => {
+            document.getElementById('horario-id').value = horario.id;
+            document.getElementById('fecha').value = horario.fecha;
+            document.getElementById('hora').value = horario.hora;
+            document.getElementById('sala').value = horario.sala;
+            document.getElementById('pelicula').value = horario.pelicula || '';
+          });
+      }
+
+      function actualizarHorario(id) {
+        const actualizado = obtenerDatosFormulario();
+        fetch(`${apiURL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(actualizado)
+        }).then(() => {
+          limpiarFormulario();
+          cargarHorarios();
+          alert('Horario actualizado');
+        });
+      }
+
+      function eliminarHorario(id) {
+        if (!confirm('¿Eliminar este horario?')) return;
+        fetch(`${apiURL}/${id}`, { method: 'DELETE' })
+          .then(() => {
+            cargarHorarios();
+            alert('Horario eliminado');
+          });
+      }
+    </script>
+  </body>
+  </html>

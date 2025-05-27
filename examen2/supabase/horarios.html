@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Horarios</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <header>
+    <h1>🕒 Administración de Horarios</h1>
+    <nav>
+      <a href="cine.html">Inicio</a>
+      <a href="peliculas.html">Películas</a>
+      <a href="boletos.html">Boletos</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="crud-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+      <h2 class="section-title">Gestión de Horarios</h2>
+      <button onclick="limpiarFormulario()" style="background-color: #a64ef0; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">limpiar horario</button>
+    </div>
+
+    <table style="width: 100%; background-color: #111; color: white; border-collapse: collapse; border-radius: 10px; overflow: hidden;">
+      <thead style="background-color: #ff00ff; color: #000;">
+        <tr>
+          <th style="padding: 15px;">Fecha</th>
+          <th style="padding: 15px;">Hora</th>
+          <th style="padding: 15px;">Sala</th>
+          <th style="padding: 15px;">Película</th>
+          <th style="padding: 15px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-horarios">
+        <!-- Llenado dinámico con JS -->
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 40px; text-shadow: 0 0 8px #ff00ff;">Agregar / Editar Horario</h3>
+    <form id="form-horario" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+      <input type="hidden" id="horario-id" />
+      <input type="date" id="fecha" placeholder="Fecha" required />
+      <input type="time" id="hora" placeholder="Hora" required />
+      <input type="text" id="sala" placeholder="Sala" required />
+      <input type="text" id="pelicula" placeholder="Película (opcional)" />
+      <button type="submit" style="background-color: #1e60d4; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold;">💾 Guardar Horario</button>
+    </form>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://yftyaleorctkoiomoouf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmdHlhbGVvcmN0a29pb21vb3VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTk3NzYsImV4cCI6MjA2MzQ5NTc3Nn0.XXiT9Z7wM5DAaQ6kW0NCtDIg0pu_aZSHJAuhAt-5gGE';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarHorarios();
+      document.getElementById('form-horario').addEventListener('submit', e => {
+        e.preventDefault();
+        const id = document.getElementById('horario-id').value;
+        if (id) {
+          actualizarHorario(id);
+        } else {
+          agregarHorario();
+        }
+      });
+    });
+
+    async function cargarHorarios() {
+      const { data, error } = await supabase.from('horarios').select('*');
+      if (error) return console.error('Error cargando horarios:', error);
+
+      const tbody = document.getElementById('tabla-horarios');
+      tbody.innerHTML = '';
+      data.forEach(horario => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding: 12px;">${horario.fecha}</td>
+          <td style="padding: 12px;">${formatearHora(horario.hora)}</td>
+          <td style="padding: 12px;">${horario.sala}</td>
+          <td style="padding: 12px;">${horario.pelicula || 'Sin película'}</td>
+          <td style="padding: 12px;">
+            <button onclick="editarHorario('${horario.id}')" style="background-color: orange; color: black; padding: 6px 12px; border: none; border-radius: 5px;">✏️ Editar</button>
+            <button onclick="eliminarHorario('${horario.id}')" style="background-color: #999; color: black; padding: 6px 12px; border: none; border-radius: 5px;">🗑️ Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function formatearHora(hora) {
+      const [h, m] = hora.split(':');
+      const hInt = parseInt(h);
+      const ampm = hInt >= 12 ? 'PM' : 'AM';
+      const h12 = hInt % 12 || 12;
+      return `${h12}:${m} ${ampm}`;
+    }
+
+    function obtenerDatosFormulario() {
+      return {
+        fecha: document.getElementById('fecha').value,
+        hora: document.getElementById('hora').value,
+        sala: document.getElementById('sala').value,
+        pelicula: document.getElementById('pelicula').value
+      };
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('form-horario').reset();
+      document.getElementById('horario-id').value = '';
+    }
+
+    async function agregarHorario() {
+      const nuevo = obtenerDatosFormulario();
+      nuevo.id = Date.now().toString();
+      const { error } = await supabase.from('horarios').insert([nuevo]);
+      if (error) return console.error('Error al agregar:', error);
+      limpiarFormulario();
+      cargarHorarios();
+      alert('Horario agregado');
+    }
+
+    async function editarHorario(id) {
+      const { data, error } = await supabase.from('horarios').select('*').eq('id', id).single();
+      if (error) return console.error('Error al obtener horario:', error);
+      document.getElementById('horario-id').value = data.id;
+      document.getElementById('fecha').value = data.fecha;
+      document.getElementById('hora').value = data.hora;
+      document.getElementById('sala').value = data.sala;
+      document.getElementById('pelicula').value = data.pelicula || '';
+    }
+
+    async function actualizarHorario(id) {
+      const actualizado = obtenerDatosFormulario();
+      const { error } = await supabase.from('horarios').update(actualizado).eq('id', id);
+      if (error) return console.error('Error actualizando:', error);
+      limpiarFormulario();
+      cargarHorarios();
+      alert('Horario actualizado');
+    }
+
+    async function eliminarHorario(id) {
+      if (!confirm('¿Eliminar este horario?')) return;
+      const { error } = await supabase.from('horarios').delete().eq('id', id);
+      if (error) return console.error('Error eliminando:', error);
+      cargarHorarios();
+      alert('Horario eliminado');
+    }
+  </script>
+</body>
+</html>

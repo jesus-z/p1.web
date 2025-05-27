@@ -1,0 +1,50 @@
+{
+  "boletos": [
+    {
+      "id": "5691",
+      "idCliente": "2134",
+      "idHorario": "12312",
+      "cantidad": 2,
+      "precioTotal": 45
+    },
+    {
+      "id": "d83e",
+      "idCliente": "12",
+      "idHorario": "21",
+      "cantidad": 2,
+      "precioTotal": 21
+    },
+    {
+      "id": "e85f",
+      "idCliente": "2134",
+      "idHorario": "12",
+      "cantidad": 121,
+      "precioTotal": 2112
+    }
+  ],
+  "peliculas": [
+    {
+      "titulo": "John Wick",
+      "genero": "Acción",
+      "duracion": 130,
+      "imagen": "https://imgs.search.brave.com/_EKTHRqgsoKrAaNf7IMVnEnzXBtElhfc5N4yngh4ZSI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vcTlKekdh/UzhDenVMRE9Mamdx/YjZjN29YUjN6N185/QkhTblhCTWxnSjJW/ay9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTl6/ZEdGMC9hV014TG5O/eVkyUnVMbU52L2JT/OTNiM0prY0hKbGMz/TXYvZDNBdFkyOXVk/R1Z1ZEM5MS9jR3h2/WVdSekx6SXdNalV2/L01EUXZhbTlvYmkx/M2FXTnIvTFdOb1lY/QjBaWEl0TlMxdy9i/R0ZqWldodmJHUmxj/aTF3L2IzTjBaWEl1/YW5Cbg",
+      "id": "2"
+    },
+    {
+      "titulo": "SA",
+      "genero": "Terror",
+      "duracion": 91,
+      "imagen": "https://imgs.search.brave.com/vMXkn0rezT5Ydj2BO9yJkpFIAZWQSeIIG-qMD5tlDIk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vRDU1MTFn/bW93RlZCaHV6QzBX/YzJiNThCa0FNWVpa/dnpEQTdOX3FsZnph/WS9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTl0/WldScC9ZUzUwWlc1/dmNpNWpiMjB2L1NX/b3phR2RTUlZOMk5U/aEIvUVVGQlRTOXpk/V3hzZVMxdC9iMjV6/ZEdWeWN5NW5hV1ku/Z2lm.gif",
+      "id": "3"
+    }
+  ],
+  "horarios": [
+    {
+      "id": "1",
+      "fecha": "122112-12-12",
+      "hora": "21:21",
+      "sala": "asdas",
+      "pelicula": "ad"
+    }
+  ]
+}
