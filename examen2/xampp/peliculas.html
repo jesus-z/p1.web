@@ -372,7 +372,6 @@
 
     const proximoId = idsNumericos.length > 0 ? Math.max(...idsNumericos) + 1 : 1;
 
-    // 🔧 Convertir a string (entre comillas en el JSON)
     nueva.id = proximoId.toString();
 
     const res = await fetch(apiURL, {
@@ -405,7 +404,6 @@
         return;
       }
 
-      // Asegurar que el ID sea tratado correctamente
       const peliculaId = encodeURIComponent(id);
 
       fetch(`${apiURL}/${peliculaId}`, { 
@@ -422,7 +420,6 @@
           cargarPeliculas();
           mostrarMensaje('✅ Película eliminada exitosamente');
           
-          // Si estamos editando la película que se eliminó, limpiar el formulario
           if (document.getElementById('pelicula-id').value == id) {
             limpiarFormulario();
           }
@@ -434,7 +431,6 @@
     }
 
     function editarPelicula(id) {
-      // Asegurar que el ID sea tratado correctamente
       const peliculaId = encodeURIComponent(id);
       
       fetch(`${apiURL}/${peliculaId}`)
@@ -464,7 +460,6 @@
           
           mostrarMensaje('✏️ Modo edición activado', 'success');
           
-          // Scroll al formulario
           document.getElementById('pelicula-form').scrollIntoView({ 
             behavior: 'smooth',
             block: 'start'
@@ -482,11 +477,9 @@
       if (!validarDatos(actualizada)) {
         return;
       }
-
-      // Preservar el ID original
       actualizada.id = id;
 
-      // Asegurar que el ID sea tratado correctamente en la URL
+
       const peliculaId = encodeURIComponent(id);
 
       fetch(`${apiURL}/${peliculaId}`, {
@@ -520,7 +513,7 @@
       mostrarMensaje('❌ Edición cancelada', 'error');
     }
 
-    // Verificar conexión al cargar la página
+
     window.addEventListener('load', () => {
       fetch(apiURL)
         .then(res => {
