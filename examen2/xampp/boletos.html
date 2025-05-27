@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Boletos Vendidos</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="css/style.css" />
   <style>
     .crud-header {
       display: flex;
@@ -12,6 +11,26 @@
       justify-content: space-between;
       margin-bottom: 30px;
     }
+
+    .btn-crud {
+      background-color: #1e60d4;
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .btn-crud:hover {
+      background-color: #174bb3;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -20,31 +39,38 @@
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
+
     thead {
       background-color: #f5f6f8;
     }
+
     th, td {
       padding: 15px;
       text-align: left;
       border-bottom: 1px solid #e0e0e0;
     }
+
     th {
       color: #333;
       font-weight: bold;
     }
+
     tbody tr:hover {
       background-color: #47e907;
     }
+
     form {
       margin-top: 30px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+
     input, button[type="submit"] {
       padding: 10px;
       font-size: 16px;
     }
+
     button[type="submit"] {
       background-color: #1e60d4;
       color: white;
@@ -52,18 +78,20 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     button[type="submit"]:hover {
       background-color: #174bb3;
     }
   </style>
 </head>
 <body>
+
   <header>
     <h1>🎟️ Administración de Boletos</h1>
     <nav>
       <a href="cine.html">Inicio</a>
       <a href="peliculas.html">Películas</a>
-      <a href="horarios.html">Horarios</a>
+      <a href="lista_horarios.html">Horarios</a>
     </nav>
   </header>
 
@@ -71,6 +99,7 @@
     <div class="crud-header">
       <h2>Boletos Vendidos</h2>
     </div>
+
     <table>
       <thead>
         <tr>
@@ -81,7 +110,9 @@
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="tabla-boletos"></tbody>
+      <tbody id="tabla-boletos">
+        <!-- Rellenado por JavaScript -->
+      </tbody>
     </table>
 
     <h3>Agregar / Editar Boleto</h3>
@@ -96,10 +127,11 @@
   </div>
 
   <script>
-    const supabase = window.supabase.createClient('https://yftyaleorctkoiomoouf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmdHlhbGVvcmN0a29pb21vb3VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTk3NzYsImV4cCI6MjA2MzQ5NTc3Nn0.XXiT9Z7wM5DAaQ6kW0NCtDIg0pu_aZSHJAuhAt-5gGE');
+    const apiURL = 'http://localhost:cineapp/api/boletos.php';
 
     document.addEventListener('DOMContentLoaded', () => {
       cargarBoletos();
+
       document.getElementById('boleto-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const id = document.getElementById('boleto-id').value;
@@ -111,25 +143,84 @@
       });
     });
 
-    async function cargarBoletos() {
-      const { data, error } = await supabase.from('boletos').select('*');
-      if (error) return console.error('Error cargando boletos:', error);
-      const tbody = document.getElementById('tabla-boletos');
-      tbody.innerHTML = '';
-      data.forEach(boleto => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${boleto.idCliente}</td>
-          <td>${boleto.idHorario}</td>
-          <td>${boleto.cantidad}</td>
-          <td>$${boleto.precioTotal.toFixed(2)}</td>
-          <td>
-            <button onclick="editarBoleto('${boleto.id}')">✏️ Editar</button>
-            <button onclick="eliminarBoleto('${boleto.id}')">🗑️ Eliminar</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+    function cargarBoletos() {
+      fetch(apiURL)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('tabla-boletos');
+          tbody.innerHTML = '';
+
+          data.forEach(boleto => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+              <td>${boleto.idCliente}</td>
+              <td>${boleto.idHorario}</td>
+              <td>${boleto.cantidad}</td>
+              <td>$${boleto.precioTotal.toFixed(2)}</td>
+              <td>
+                <button onclick="editarBoleto(${boleto.id})">✏️ Editar</button>
+                <button onclick="eliminarBoleto(${boleto.id})">🗑️ Eliminar</button>
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => console.error('Error al cargar boletos:', err));
+    }
+
+    function agregarBoleto() {
+      const nuevo = obtenerDatosFormulario();
+
+      fetch(apiURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevo)
+      })
+        .then(res => res.json())
+        .then(() => {
+          limpiarFormulario();
+          cargarBoletos();
+          alert('Boleto agregado');
+        });
+    }
+
+    function eliminarBoleto(id) {
+      if (!confirm('¿Estás seguro de eliminar este boleto?')) return;
+
+      fetch(`${apiURL}/${id}`, { method: 'DELETE' })
+        .then(() => {
+          cargarBoletos();
+          alert('Boleto eliminado');
+        });
+    }
+
+    function editarBoleto(id) {
+      fetch(`${apiURL}/${id}`)
+        .then(res => res.json())
+        .then(boleto => {
+          document.getElementById('boleto-id').value = boleto.id;
+          document.getElementById('idCliente').value = boleto.idCliente;
+          document.getElementById('idHorario').value = boleto.idHorario;
+          document.getElementById('cantidad').value = boleto.cantidad;
+          document.getElementById('precioTotal').value = boleto.precioTotal;
+        });
+    }
+
+    function actualizarBoleto(id) {
+      const actualizado = obtenerDatosFormulario();
+
+      fetch(`${apiURL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(actualizado)
+      })
+        .then(() => {
+          limpiarFormulario();
+          cargarBoletos();
+          alert('Boleto actualizado');
+        });
     }
 
     function obtenerDatosFormulario() {
@@ -139,40 +230,6 @@
         cantidad: parseInt(document.getElementById('cantidad').value),
         precioTotal: parseFloat(document.getElementById('precioTotal').value)
       };
-    }
-
-    async function agregarBoleto() {
-      const nuevo = obtenerDatosFormulario();
-      nuevo.id = Date.now().toString();
-      const { error } = await supabase.from('boletos').insert([nuevo]);
-      if (error) return console.error('Error agregando boleto:', error);
-      limpiarFormulario();
-      cargarBoletos();
-    }
-
-    async function editarBoleto(id) {
-      const { data, error } = await supabase.from('boletos').select('*').eq('id', id).single();
-      if (error) return console.error('Error obteniendo boleto:', error);
-      document.getElementById('boleto-id').value = data.id;
-      document.getElementById('idCliente').value = data.idCliente;
-      document.getElementById('idHorario').value = data.idHorario;
-      document.getElementById('cantidad').value = data.cantidad;
-      document.getElementById('precioTotal').value = data.precioTotal;
-    }
-
-    async function actualizarBoleto(id) {
-      const actualizado = obtenerDatosFormulario();
-      const { error } = await supabase.from('boletos').update(actualizado).eq('id', id);
-      if (error) return console.error('Error actualizando boleto:', error);
-      limpiarFormulario();
-      cargarBoletos();
-    }
-
-    async function eliminarBoleto(id) {
-      if (!confirm('¿Estás seguro de eliminar este boleto?')) return;
-      const { error } = await supabase.from('boletos').delete().eq('id', id);
-      if (error) return console.error('Error eliminando boleto:', error);
-      cargarBoletos();
     }
 
     function limpiarFormulario() {
